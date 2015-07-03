@@ -1,7 +1,6 @@
 package FPTreetrie;
 
-import java.util.Stack;
-
+import java.util.*;
 
 
 /*************************************************************************
@@ -52,11 +51,11 @@ import java.util.Stack;
  */
 public class TrieST<Value> {
     private static final int R = 256;        // extended ASCII
-
-
+    private int[] LetterCount = new int[R];
     private Node root;      // root of trie
     private int N;          // number of keys in trie
     // R-way trie node
+    Map<Object, List<Node>> NodeConnect = new HashMap<Object, List<Node>>();
     private static class Node {
         private Object val,Character;
         private Node[] next = new Node[R];
@@ -129,6 +128,7 @@ public class TrieST<Value> {
         x.next[c] = put(x.next[c], key, val, d+1);
         x.next[c].Character = c;
         x.next[c].count++;
+        LetterCount[(int)c]++;
         return x;
     }
 
@@ -147,9 +147,17 @@ public class TrieST<Value> {
     public boolean isEmpty() {
         return size() == 0;
     }
-    private void print(Node x){
-    	String s = x.Character + " " + "count:" + " " + x.count;
-    	StdOut.println(s);
+
+    private void process(Node x){
+    	if(!NodeConnect.containsKey(x.Character)){
+    		List<Node> nodelist = new LinkedList<Node>();
+    		nodelist.add(x);
+    		NodeConnect.put(x.Character, nodelist);
+    	}
+    	else{
+    		List<Node> nodelist = NodeConnect.get(x.Character);
+    		nodelist.add(x);
+    	}
     }
     
     public void Treetraversal(){
@@ -158,7 +166,7 @@ public class TrieST<Value> {
     	while(!st.isEmpty()){
     		Node top = st.peek();
     		if(top!=root){
-    			print(top);
+    			process(top);
     		}
     		st.pop();
     		for(char c = 0; c <R; c++){;
@@ -176,6 +184,14 @@ public class TrieST<Value> {
      * use the foreach notation: <tt>for (Key key : st.keys())</tt>.
      * @return all keys in the sybol table as an <tt>Iterable</tt>
      */
+    public void printTable(){
+    	for(int i = 0; i < LetterCount.length; i++){
+    		if(LetterCount[i]!=0){
+    			String s = (char)i + " "  + LetterCount[i];
+    			System.out.println(s);
+    	}
+    	}
+    }
     public Iterable<String> keys() {
         return keysWithPrefix("");
     }
@@ -305,7 +321,7 @@ public class TrieST<Value> {
         st.put("the", 5);
         st.put("sea", 6);
         st.put("shore", 7);
-        st.Treetraversal();
+        st.printTable();
 
         // print results
         if (st.size() < 100) {
