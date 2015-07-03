@@ -1,5 +1,6 @@
 package FPTreetrie;
 
+import java.util.*;
 
 
 /*************************************************************************
@@ -50,15 +51,15 @@ package FPTreetrie;
  */
 public class TrieST<Value> {
     private static final int R = 256;        // extended ASCII
-
-
+    private int[] LetterCount = new int[R];
     private Node root;      // root of trie
     private int N;          // number of keys in trie
-
     // R-way trie node
+    Map<Object, List<Node>> NodeConnect = new HashMap<Object, List<Node>>();
     private static class Node {
-        private Object val;
+        private Object val,Character;
         private Node[] next = new Node[R];
+        public int count = 0;
     }
 
    /**
@@ -115,7 +116,9 @@ public class TrieST<Value> {
     }
 
     private Node put(Node x, String key, Value val, int d) {
-        if (x == null) x = new Node();
+        if (x == null){
+        	x = new Node();
+        }
         if (d == key.length()) {
             if (x.val == null) N++;
             x.val = val;
@@ -123,6 +126,9 @@ public class TrieST<Value> {
         }
         char c = key.charAt(d);
         x.next[c] = put(x.next[c], key, val, d+1);
+        x.next[c].Character = c;
+        x.next[c].count++;
+        LetterCount[(int)c]++;
         return x;
     }
 
@@ -142,12 +148,50 @@ public class TrieST<Value> {
         return size() == 0;
     }
 
+    private void process(Node x){
+    	if(!NodeConnect.containsKey(x.Character)){
+    		List<Node> nodelist = new LinkedList<Node>();
+    		nodelist.add(x);
+    		NodeConnect.put(x.Character, nodelist);
+    	}
+    	else{
+    		List<Node> nodelist = NodeConnect.get(x.Character);
+    		nodelist.add(x);
+    	}
+    }
+    
+    public void Treetraversal(){
+    	Stack<Node> st = new Stack<Node>();
+    	st.push(root);
+    	while(!st.isEmpty()){
+    		Node top = st.peek();
+    		if(top!=root){
+    			process(top);
+    		}
+    		st.pop();
+    		for(char c = 0; c <R; c++){;
+    			if(top.next[c] == null){
+    				continue;
+    			}
+    			st.push(top.next[c]);
+    		}
+    	}
+    }
+
     /**
      * Returns all keys in the symbol table as an <tt>Iterable</tt>.
      * To iterate over all of the keys in the symbol table named <tt>st</tt>,
      * use the foreach notation: <tt>for (Key key : st.keys())</tt>.
      * @return all keys in the sybol table as an <tt>Iterable</tt>
      */
+    public void printTable(){
+    	for(int i = 0; i < LetterCount.length; i++){
+    		if(LetterCount[i]!=0){
+    			String s = (char)i + " "  + LetterCount[i];
+    			System.out.println(s);
+    	}
+    	}
+    }
     public Iterable<String> keys() {
         return keysWithPrefix("");
     }
@@ -277,7 +321,7 @@ public class TrieST<Value> {
         st.put("the", 5);
         st.put("sea", 6);
         st.put("shore", 7);
-        StdOut.println(st.size());
+        st.printTable();
 
         // print results
         if (st.size() < 100) {
