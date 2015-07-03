@@ -1,5 +1,7 @@
 package FPTreetrie;
 
+import java.util.Stack;
+
 
 
 /*************************************************************************
@@ -54,11 +56,11 @@ public class TrieST<Value> {
 
     private Node root;      // root of trie
     private int N;          // number of keys in trie
-
     // R-way trie node
     private static class Node {
-        private Object val;
+        private Object val,Character;
         private Node[] next = new Node[R];
+        public int count = 0;
     }
 
    /**
@@ -115,7 +117,9 @@ public class TrieST<Value> {
     }
 
     private Node put(Node x, String key, Value val, int d) {
-        if (x == null) x = new Node();
+        if (x == null){
+        	x = new Node();
+        }
         if (d == key.length()) {
             if (x.val == null) N++;
             x.val = val;
@@ -123,6 +127,8 @@ public class TrieST<Value> {
         }
         char c = key.charAt(d);
         x.next[c] = put(x.next[c], key, val, d+1);
+        x.next[c].Character = c;
+        x.next[c].count++;
         return x;
     }
 
@@ -140,6 +146,28 @@ public class TrieST<Value> {
      */
     public boolean isEmpty() {
         return size() == 0;
+    }
+    private void print(Node x){
+    	String s = x.Character + " " + "count:" + " " + x.count;
+    	StdOut.println(s);
+    }
+    
+    public void Treetraversal(){
+    	Stack<Node> st = new Stack<Node>();
+    	st.push(root);
+    	while(!st.isEmpty()){
+    		Node top = st.peek();
+    		if(top!=root){
+    			print(top);
+    		}
+    		st.pop();
+    		for(char c = 0; c <R; c++){;
+    			if(top.next[c] == null){
+    				continue;
+    			}
+    			st.push(top.next[c]);
+    		}
+    	}
     }
 
     /**
@@ -277,7 +305,7 @@ public class TrieST<Value> {
         st.put("the", 5);
         st.put("sea", 6);
         st.put("shore", 7);
-        StdOut.println(st.size());
+        st.Treetraversal();
 
         // print results
         if (st.size() < 100) {
