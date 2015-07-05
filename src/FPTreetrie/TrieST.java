@@ -3,6 +3,7 @@ package FPTreetrie;
 import java.util.*;
 
 
+
 /*************************************************************************
  *  Compilation:  javac TrieST.java
  *  Execution:    java TrieST < words.txt
@@ -51,23 +52,41 @@ import java.util.*;
  */
 public class TrieST<Value> {
     private static final int R = 256;        // extended ASCII
-    private int[] LetterCount = new int[R];
-    private Node root;      // root of trie
+    public int[] LetterCount = new int[R];
+    public Node root;      // root of trie
     private int N;          // number of keys in trie
     // R-way trie node
-    Map<Object, List<Node>> NodeConnect = new HashMap<Object, List<Node>>();
-    private static class Node {
-        private Object val,Character;
-        private Node[] next = new Node[R];
+    public static class Node {
+        private Object val;
+        public Character Character;
+        public Node[] next = new Node[R];
         public int count = 0;
+        public int degree = 0;
     }
+    Comparator<Character> integerComparator = new Comparator<Character>() {
+        @Override public int compare(Character a, Character b) {
+        	int a1 = a;
+        	int b1 = b;	
+        	if(LetterCount[a1]<LetterCount[b1]){
+        		return 1;
+        	}
+        	else if(LetterCount[a1] ==LetterCount[b1]){
+        		if(a1<b1)
+        			return -1;
+        		else if(a1 == b1)
+        			return 0;
+        		else
+        			return 1;
+        	}
+        	else
+        		return -1;
+        }
+    };
+    public Map<Character, List<Node>> NodeConnect = new TreeMap<Character, List<Node>>(integerComparator);
 
    /**
      * Initializes an empty string symbol table.
      */
-    public TrieST() {
-    }
-
 
     /**
      * Returns the value associated with the given key.
@@ -147,7 +166,6 @@ public class TrieST<Value> {
     public boolean isEmpty() {
         return size() == 0;
     }
-
     private void process(Node x){
     	if(!NodeConnect.containsKey(x.Character)){
     		List<Node> nodelist = new LinkedList<Node>();
@@ -169,12 +187,15 @@ public class TrieST<Value> {
     			process(top);
     		}
     		st.pop();
+    		int count  = 0;
     		for(char c = 0; c <R; c++){;
     			if(top.next[c] == null){
     				continue;
     			}
     			st.push(top.next[c]);
+    			count++;
     		}
+    		top.degree = count;
     	}
     }
 
@@ -185,12 +206,10 @@ public class TrieST<Value> {
      * @return all keys in the sybol table as an <tt>Iterable</tt>
      */
     public void printTable(){
-    	for(int i = 0; i < LetterCount.length; i++){
-    		if(LetterCount[i]!=0){
-    			String s = (char)i + " "  + LetterCount[i];
-    			System.out.println(s);
-    	}
-    	}
+    	for(Map.Entry<Character, List<Node>> entry : NodeConnect.entrySet()){
+        	String s = entry.getKey().toString() + ' ' + LetterCount[entry.getKey()];
+        	StdOut.println(s);
+        }
     }
     public Iterable<String> keys() {
         return keysWithPrefix("");
@@ -313,14 +332,12 @@ public class TrieST<Value> {
      */
     public static void main(String[] args) {
         TrieST<Integer> st = new TrieST<Integer>();
-        st.put("she",0);
-        st.put("sells", 1);
-        st.put("sea", 2);
-        st.put("shells", 3);
-        st.put("by", 4);
-        st.put("the", 5);
-        st.put("sea", 6);
-        st.put("shore", 7);
+        st.put("fcamp",0);
+        st.put("fcabm", 1);
+        st.put("fb", 2);
+        st.put("cbp", 3);
+        st.put("fcamp", 4);
+        st.Treetraversal();
         st.printTable();
 
         // print results
