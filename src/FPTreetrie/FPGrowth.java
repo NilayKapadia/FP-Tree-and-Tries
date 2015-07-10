@@ -2,11 +2,9 @@ package FPTreetrie;
 
 import FPTreetrie.TrieST.Node;
 import FPTreetrie.TrieST;
-
-import java.io.IOException;
 import java.util.*;
 
-public class FPGrowth {
+public class FPGrowth{
 	private static final int R = 256;
 	private TrieST<Integer> FPTree;
 	public List<List<Node>> paths = new ArrayList<List<Node>>();
@@ -181,16 +179,19 @@ public class FPGrowth {
 			}
 		}
 
-public static void main(String[] args) {
+public static void main(String[] args){
 	TrieST<Integer> st = new TrieST<Integer>();
-    try {
-		st.fileReader("TrieDB.txt", 100);
-	} catch (IOException e) {
-		e.printStackTrace();
-	}
+    st.put("fcamp",0);
+    st.put("fcabm", 1);
+    st.put("fb", 2);
+    st.put("cbp", 3);
+    st.put("fcamp", 4);
+    //st.put("the", 5);
+    //st.put("sea", 6);
+    //st.put("shore", 7);
     st.Treetraversal();
     FPGrowth fpgrowth = new FPGrowth(st);
-    Character ch = 'a';
+    Character ch = 'p';
     List<List<Node>> paths = fpgrowth.singlePath(st.root,ch);
     if(paths != null){
     for(List<Node> path1: paths){

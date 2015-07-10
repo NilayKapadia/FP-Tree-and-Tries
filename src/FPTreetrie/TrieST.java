@@ -1,9 +1,6 @@
 package FPTreetrie;
 
 import java.util.*;
-import java.io.*;
-import java.lang.*;
-import java.net.*;
 
 
 
@@ -129,24 +126,25 @@ public class TrieST<Value> {
      * with the new value if the key is already in the symbol table.
      * If the value is <tt>null</tt>, this effectively deletes the key from the symbol table.
      * @param key the key
-     * @param startIndex the value
+     * @param val the value
      * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>
      */
-    public void put(String key, int startIndex) {
-        root = put(root, key, startIndex, 0);
+    public void put(String key, Value val) {
+        if (val == null) delete(key);
+        else root = put(root, key, val, 0);
     }
 
-    private Node put(Node x, String key, int startIndex, int d) {
+    private Node put(Node x, String key, Value val, int d) {
         if (x == null){
         	x = new Node();
         }
         if (d == key.length()) {
             if (x.val == null) N++;
-            x.val = startIndex;
+            x.val = val;
             return x;
         }
         char c = key.charAt(d);
-        x.next[c] = put(x.next[c], key, startIndex, d+1);
+        x.next[c] = put(x.next[c], key, val, d+1);
         x.next[c].Character = c;
         x.next[c].count++;
         LetterCount[(int)c]++;
@@ -318,7 +316,7 @@ public class TrieST<Value> {
         }
         else {
             char c = key.charAt(d);
-            x.next[c] = delete(x.next[c], key, d+1); 
+            x.next[c] = delete(x.next[c], key, d+1);
         }
 
         // remove subtrie rooted at x if it is completely empty
@@ -328,54 +326,11 @@ public class TrieST<Value> {
                 return x;
         return null;
     }
-    public void fileReader(String fileName, int minimumSupport) throws IOException{
-    	File file = new File(fileName);
-    	String path = file.getAbsolutePath();
-    	FileReader filePath = new FileReader(path);
-    	BufferedReader textReader = new BufferedReader(filePath);
-    	String s;
-    	Map<Character, Integer> characterList = new TreeMap<Character, Integer>();
-    	while((s = textReader.readLine())!=null){
-    		for(int i = 0; i < s.length(); i++){
-    			if(characterList.get(s.charAt(i))!=null)
-    			characterList.put(s.charAt(i), characterList.get(s.charAt(i))+1);
-    			else
-    			characterList.put(s.charAt(i), 1);
-    		}
-    	}
-    	textReader.close();
-    	filePath.close();
-    	FileReader filePath1 = new FileReader(path);
-    	BufferedReader newtextReader = new BufferedReader(filePath1);
-    	int index = 0;
-    	while((s = newtextReader.readLine())!=null){
-    		List<Character> list = new ArrayList<Character>();
-    		for(int i = 0; i < s.length(); i++){
-    			if(characterList.get(s.charAt(i))>=minimumSupport){
-    				list.add(s.charAt(i));
-    			}
-    		}
-    		Collections.sort(list, new Comparator<Character>(){
-    			public int compare(Character a, Character b){
-    				return (characterList.get(b)).compareTo(characterList.get(a));
-    			}
-    		});
-    		StringBuilder tempString = new StringBuilder(list.size());
-    		for(Character ch: list){
-    			tempString.append(ch);
-    		}
-    		put(tempString.toString(), index);
-    		index++;
-    	}
-    	newtextReader.close();
-    	filePath1.close();
-    }
 
     /**
      * Unit tests the <tt>TrieST</tt> data type.
-     * @throws IOException 
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         TrieST<Integer> st = new TrieST<Integer>();
         st.put("fcamp",0);
         st.put("fcabm", 1);
@@ -384,34 +339,31 @@ public class TrieST<Value> {
         st.put("fcamp", 4);
         st.Treetraversal();
         st.printTable();
-        TrieST<Integer> st1 = new TrieST<Integer>();
-        st1.fileReader("TrieDB.txt",100);
-        st1.Treetraversal();
-        st1.printTable();
+
         // print results
-        if (st1.size() < 100) {
+        if (st.size() < 100) {
             StdOut.println("keys(\"\"):");
-            for (String key : st1.keys()) {
-                StdOut.println(key + " " + st1.get(key));
+            for (String key : st.keys()) {
+                StdOut.println(key + " " + st.get(key));
             }
             StdOut.println();
         }
 
         StdOut.println("longestPrefixOf(\"shellsort\"):");
-        StdOut.println(st1.longestPrefixOf("shellsort"));
+        StdOut.println(st.longestPrefixOf("shellsort"));
         StdOut.println();
 
         StdOut.println("longestPrefixOf(\"quicksort\"):");
-        StdOut.println(st1.longestPrefixOf("quicksort"));
+        StdOut.println(st.longestPrefixOf("quicksort"));
         StdOut.println();
 
         StdOut.println("keysWithPrefix(\"shor\"):");
-        for (String s : st1.keysWithPrefix("shor"))
+        for (String s : st.keysWithPrefix("shor"))
             StdOut.println(s);
         StdOut.println();
 
         StdOut.println("keysThatMatch(\".he.l.\"):");
-        for (String s : st1.keysThatMatch(".he.l."))
+        for (String s : st.keysThatMatch(".he.l."))
             StdOut.println(s);
     }
 }
