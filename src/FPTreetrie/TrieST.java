@@ -2,8 +2,6 @@ package FPTreetrie;
 
 import java.util.*;
 import java.io.*;
-import java.lang.*;
-import java.net.*;
 
 
 
@@ -58,6 +56,7 @@ public class TrieST<Value> {
     public int[] LetterCount = new int[R];
     public Node root;      // root of trie
     private int N;          // number of keys in trie
+    public int minSupport;
     // R-way trie node
     public static class Node {
         private Object val;
@@ -343,6 +342,7 @@ public class TrieST<Value> {
     			characterList.put(s.charAt(i), 1);
     		}
     	}
+    	minSupport = minimumSupport;
     	textReader.close();
     	filePath.close();
     	FileReader filePath1 = new FileReader(path);
@@ -357,7 +357,10 @@ public class TrieST<Value> {
     		}
     		Collections.sort(list, new Comparator<Character>(){
     			public int compare(Character a, Character b){
+    				if(characterList.get(a)!=characterList.get(b))
     				return (characterList.get(b)).compareTo(characterList.get(a));
+    				else
+    					return a.compareTo(b);
     			}
     		});
     		StringBuilder tempString = new StringBuilder(list.size());
@@ -383,9 +386,9 @@ public class TrieST<Value> {
         st.put("cbp", 3);
         st.put("fcamp", 4);
         st.Treetraversal();
-        st.printTable();
+        //st.printTable();
         TrieST<Integer> st1 = new TrieST<Integer>();
-        st1.fileReader("TrieDB.txt",100);
+        st1.fileReader("TrieDB.txt",2);
         st1.Treetraversal();
         st1.printTable();
         // print results
