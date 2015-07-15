@@ -1,8 +1,9 @@
 package FPTreetrie;
-
 import FPTreetrie.TrieST.Node;
 import FPTreetrie.TrieST;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
@@ -10,10 +11,8 @@ public class FPGrowth {
 	private static final int R = 256;
 	private TrieST<Integer> FPTree;
 	public List<List<Node>> paths = new ArrayList<List<Node>>();
-	private static Node root;
 	public FPGrowth(TrieST<Integer> trie){
 		FPTree = trie;
-		root = FPTree.root;
 	}
 	/*This method is used to construct all the paths
 	from the root to the desired character.
@@ -85,128 +84,154 @@ public class FPGrowth {
 			return pathList;
 		}
 	}
+	private String generateString(List<Node> path, int minimumSupport){
+		String s = "";
+		for(Node newNode:path){
+			if(newNode.Character!=null){
+				if(newNode.count>= minimumSupport)
+					s += newNode.Character.toString();
+			}
+		}
+		return s;
+	}
 	/*This method and the method below
 	generates a combination of the paths
 	by recursion.*/
-	private List<List<Character>> combination(List<Character> nodeList) {
-		List<Character> tempList = new ArrayList<Character>();
-		List<List<Character>> pathsList = new ArrayList<List<Character>>();
-		combination(tempList, nodeList, pathsList);
-		return pathsList;
+	private List<String> combination(String nodeList) {
+		List<String> pathList = new ArrayList<String>();
+		combination("",nodeList, pathList);
+		return pathList;
 		}
 	
-    private static void combination(List<Character> prefixNodes,List<Character> nodeList, 
-    		List<List<Character>> pathsList) {
-    	pathsList.add(prefixNodes);
-    	for(int i = 0; i<nodeList.size(); i++){
-    		List<Character> tempNode = new ArrayList<Character>(prefixNodes);
-    		tempNode.add(nodeList.get(i));
-    		combination(tempNode, nodeList.subList(i+1, nodeList.size()), pathsList);
+    private static void combination(String prefixNodes, String NodeList, List<String> pathList) {
+        pathList.add(prefixNodes);
+    	for(int i = 0; i<NodeList.length(); i++){
+    		combination(prefixNodes + NodeList.charAt(i), NodeList.substring(i+1), pathList);
     	}
     }
-    /*This is simply a routine to convert a list of characters to
-    a string and append with the appropriate character.*/
-    private List<String> permutationGenerator(List<Character> listOfCharacters, Character c){
-    	List<List<Character>> pathList = combination(listOfCharacters);
-    	List<String> stringList = new ArrayList<String>();
-		for(List<Character> path:pathList){
-			StringBuilder stringArray = new StringBuilder(); 
-			for(Character newNode: path){
-				stringArray.append(newNode);
-			}
-			stringArray.append(c);
-			stringList.add(stringArray.toString());
-		}
-		return stringList;
-    }
-	/* This method is the main method that generates all the patterns.
-	 */
-	public List<String> patternGenerator(Character c){
-		List<List<Node>>paths = singlePath(root,c);
-		if(paths.size() == 0){
+	 
+	public List<String> patternGenerator(TrieST<Integer> trie,Character c) throws IOException{
+		FPGrowth FPTree_internal = new FPGrowth(trie);
+		List<List<Node>> paths = FPTree_internal.singlePath(trie.root, c);
+		if(paths == null)
 			return null;
-		}
-		else if(paths.size() == 1){
-			List<Node> permutedPath = paths.get(0);
-			Node permuteNode = permutedPath.get(permutedPath.size()-1);
-			List<Character> tempList = new ArrayList<Character>();
-			permutedPath.remove(permutedPath.size()-1);
-			permutedPath.remove(0);
-			for(Node tempNode:permutedPath){
-				if(tempNode.count>=permuteNode.count)
-					tempList.add(tempNode.Character);
-			}
-			List<String> listOfStrings = permutationGenerator(tempList,c);
-			return listOfStrings;
+		
+		if(paths.size() == 1){
+			String path_string = generateString(paths.get(0), FPTree.minSupport);
+			List<String> finalString = combination(path_string);
+			return finalString;
 		}
 		else{
-			String basestring = "";
-			boolean flag = false;
-			for(List<Node>path2:paths){
-				String tempString = "";
-				path2.remove(path2.size()-1);
-				for(Node newNode: path2){
-					if(newNode.Character!=null)
-					tempString = tempString + newNode.Character.toString();
+			TrieST<Integer> trie_internal = new TrieST<Integer>();
+			String fileName = "shellST.txt";
+			File file = new File(fileName);
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			List<String> finalString = new ArrayList<String>();
+			FileWriter writer = new FileWriter(file);
+			for(List<Node> path: paths){
+				List<Node> tempPath = path;
+				Node tempNode = path.get(path.size()-1);
+				tempPath.remove(tempPath.size()-1);
+				String tempString = generateString(tempPath,0);
+				if(tempString == ""){
+					String s = c.toString();
+					finalString.add(s);
+					continue;
 				}
-				if(basestring == "" && flag == false){
-					basestring = tempString;
-					flag = true;
+				for(int i = 0; i<tempNode.count; i++){
+					writer.write(tempString);
+					writer.write('\n');
+				}
+			}
+			writer.flush();
+			writer.close();
+			trie_internal.fileReader(fileName, FPTree.minSupport);
+			trie_internal.Treetraversal();
+			for(Character temp_char: trie_internal.NodeConnect.keySet()){
+				List<String> stringPaths = patternGenerator(trie_internal, temp_char);
+				if(stringPaths.size() == 0){
+					continue;
 				}
 				else{
-					String checkstring = "";
-					for(int i = 0; i < basestring.length(); i++){
-						Character check = basestring.charAt(i);
-						//StdOut.println(check);
-						//StdOut.println(tempString);
-						for(int j = 0; j<tempString.length(); j++){
-							if(tempString.charAt(j) == check){
-								checkstring = checkstring + tempString.charAt(j);
-							}
-						}
+					for(int i = 0; i < stringPaths.size(); i++){
+						String tempString = stringPaths.get(i);
+						tempString += c.toString();
+						stringPaths.set(i, tempString);
 					}
-					basestring = checkstring;
+					finalString.addAll(stringPaths);
 				}
 			}
-			        if(basestring!=""){
-			        	List<Character> stringArray = new ArrayList<Character>();
-			        	for(int i = 0; i < basestring.length(); i++){
-			        		stringArray.add(basestring.charAt(i));
-			        	}
-					List<String> listOfStrings = permutationGenerator(stringArray,c);
-					return listOfStrings;
-			        }
-			        else
-			        	return null;
+			return finalString;
+		}
+	}
+	public Set<String> generateAllPatterns() throws IOException{
+		Set<String> listOfPatterns = new HashSet<String>();
+		for(Character c: FPTree.NodeConnect.keySet()){
+			for(String s: patternGenerator(FPTree, c)){
+				if(s == "")
+					continue;
+				char[] chars = s.toCharArray();
+				Arrays.sort(chars);
+				String sorted = new String(chars);
+				listOfPatterns.add(sorted);
 			}
 		}
+		return listOfPatterns;
+	}
 
 public static void main(String[] args) {
 	TrieST<Integer> st = new TrieST<Integer>();
     try {
-		st.fileReader("TrieDB.txt", 100);
+		st.fileReader("TrieDB.txt", 2);
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
     st.Treetraversal();
     FPGrowth fpgrowth = new FPGrowth(st);
-    Character ch = 'a';
+    Character ch = 'e';
     List<List<Node>> paths = fpgrowth.singlePath(st.root,ch);
     if(paths != null){
     for(List<Node> path1: paths){
     	for(Node node: path1){
     		    if(node.Character!=null)
     			StdOut.print(node.Character);
+    		    if(path1.indexOf(node) == path1.size()-1)
+    		    StdOut.print(" " + node.count);
     	}
     	StdOut.print('\n');
     }
     }
-    List<String> stringList = fpgrowth.patternGenerator(ch);
+    Set<String> patterns = new HashSet<String>();
+	try {
+		patterns = fpgrowth.generateAllPatterns();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+    System.out.println("patterns");
+    List<String> stringList = new ArrayList<String>();
+    stringList.addAll(patterns);
+    Collections.sort(stringList,new Comparator<String>(){
+		public int compare(String a, String b){
+			if(a.length()!=b.length())
+			return a.length() > b.length() ? +1 : a.length() < b.length() ? -1 : 0;
+			else
+				return a.compareTo(b);
+		}
+	});
+    for(String s: stringList){
+    	System.out.println(s);
+    }
+    System.out.println(stringList.size());
+    /*List<String> stringList = fpgrowth.patternGenerator(ch);
     if(stringList!=null){
     for(String s:stringList){
     	StdOut.println(s);
     }
-    }
+    }*/
 }
     
 }
