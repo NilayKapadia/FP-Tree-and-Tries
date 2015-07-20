@@ -1,0 +1,43 @@
+	FP-GROWTH USING TRIE DATA STRUCTURE
+
+		Nilay Kapadia(U13CO015) and Palash Ahuja(U12CO087)
+
+1.	Introduction and Working
+Frequent pattern mining plays an essential role in mining associations, correlations, sequential patterns, episodes, multi-dimensional patterns, max-patterns, partial periodicity, emerging patterns, and many other important data mining tasks.
+
+First, we design a novel data structure, called frequent pattern tree, or FP-tree for short, which is an extended prefix-tree structure storing crucial, quantitative information about frequent patterns. To ensure that the tree structure is compact and informative, only frequent length-1 items will have nodes in the tree. The tree nodes are arranged in such a way that more frequently occurring nodes will have better chances of sharing nodes than less frequently occurring ones. Our experiments show that such a tree is highly compact, usually orders of magnitude smaller than the original database. This offers an FP-tree-based mining method a much smaller data set to work on.
+
+Second, we develop an FP-tree-based pattern fragment growth mining method, which starts from a frequent length-1 pattern (as an initial suffix pattern), examines only its conditional pattern base (a “sub-database” which consists of the set of frequent items co-occurring with the suffix pattern), constructs its (conditional) FP-tree, and performs mining recursively with such a tree. The pattern growth is achieved via concatenation of the suffix pattern with the new ones generated from a conditional FP-tree.
+
+Third, the search technique employed in mining is a partitioning-based, divide-and-conquer method rather than Apriori-like bottom-up generation of frequent itemsets combinations. This dramatically reduces the size of conditional pattern base generated at the subsequent level of search as well as the size of its corresponding conditional FP-tree. Moreover, it transforms the problem of finding long frequent patterns to looking for shorter ones and then concatenating the suffix. It employs the least frequent items as suffix, which offers good selectivity. All these techniques contribute to the substantial reduction of search costs.
+
+
+
+2.	Graphical Analysis
+
+
+ 
+
+The above graph indicates the Runtime v/s Min. Support plot. It is clear from the plot that for higher values of minimum support frequency runtime reduces exponentially as the number of patterns generated reduce.
+
+3.	Time Frame
+
+•	Read and Research about the topic in depth			1-1.5 weeks
+•	Prepare an overview and a Plan of Action on how 
+to implement the project						2-2.5 weeks
+•	Implement Tries Data Structure					1 week
+•	Implement FPTree						1 week
+•	Implement FP Growth Algorithm					3 weeks
+•	Obtain Data and Draw 						1 week
+4.	Conclusion
+
+There are several advantages of FP-growth over other approaches: (1) It constructs a highly compact FP-tree, which is usually substantially smaller than the original database, and thus saves the costly database scans in the subsequent mining processes. (2) It applies a pattern growth method which avoids costly candidate sets generation and test by successively concatenating frequent 1-itemset found in the (conditional) FP-trees : It never generates any combinations of new candidate sets which are not in the database because the itemset in any transaction is always encoded in the corresponding path of the FP-trees . In this context, the mining methodology is not Apriori-like (restricted) generation-and-test but frequent pattern (fragment) growth only. The major operations of mining are count accumulation and prefix path count adjustment, which are usually much less costly than candidate generation and pattern matching operations performed in most Apriori-like algorithms. (3) It applies a partitioning-based divide-and-conquer method which dramatically reduces the size of the subsequent conditional pattern bases and conditional FP-trees. Several other optimization techniques, including ordering of frequent items, and employing the least frequent events as suffix, also contribute to the efficiency of the method.
+
+
+5.	References
+
+•	Mining Frequent Patterns without Candidate Generation by Jiawei Han, Jian Pei, and Yiwen Yin
+•	Algorithms by Robert Sedgewick and Kevin Wayne
+ 
+ 
+ 
