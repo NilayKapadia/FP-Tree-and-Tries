@@ -84,6 +84,7 @@ public class FPGrowth {
 			return pathList;
 		}
 	}
+	/*This method generates string for the path */
 	private String generateString(List<Node> path, int minimumSupport){
 		String s = "";
 		for(Node newNode:path){
